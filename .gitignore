@@ -1,0 +1,8 @@
+# stata swap file
+*.stswp
+
+# clean data
+/stata/data/clean/
+
+# output
+/stata/output/
