@@ -148,6 +148,8 @@ tab open_peak4
 rename open_peak4 opening_times
 tab opening_times
 
+tab open_peak 4
+
 label define role_labels 1 "Owner" 2 "Manager" 3 "Head Office" 4 "Employee" 5 "Other"
 label values role role_labels
 tab role
@@ -172,15 +174,12 @@ power twomeans `r(mu_1)', n1(`r(N_1)') n2(`r(N_2)') sd1(`r(sd_1)') sd2(`r(sd_2)'
 
 * ologit models
 eststo l1: ologit feasibility i.treatment, robust
-brant, detail
-
 eststo l2: ologit feasibility i.treatment i.opening_times, robust
 eststo l3: ologit feasibility i.treatment i.opening_time i.previousawareness, robust
 eststo l4: ologit feasibility i.treatment i.opening_time i.previousawareness i.type, robust
 eststo l5: ologit feasibility i.treatment i.opening_time i.previousawareness i.type i.employees, robust
 eststo l6: ologit feasibility i.treatment i.opening_time i.previousawareness i.type i.employees i.role, robust
 eststo l7: ologit feasibility i.treatment i.opening_time i.previousawareness i.type i.employees i.role i.voltage, robust
-
 
 global format_numbers "b(3) se(3) star(* 0.10 ** 0.05 *** 0.01)"
 global format_settings "nomtitles lines nogap nodepvars compress nonotes modelwidth(6)"
@@ -246,31 +245,11 @@ global format_oprobit "drop (cut*) $format_table $format_scalars_probit equation
 esttab p1 p2 p3 p4 p5 p6 p7 using "$tables\ologit4.rtf", replace $format_ologit $format_baseline
 esttab p1 p2 p3 p4 p5 p6 p7 using "$tables\ologit5.rtf", replace $format_ologit $format_baseline
 
-ologit feasibility i.treatment i.opening_time i.previousawareness i.type i.employees i.role i.voltage, robust
-margins, dydx(treatment) predict(outcome(#4)) predict(outcome(#5)) predict(outcome(#6)) post
-
-ologit feasibility i.treatment i.opening_time i.previousawareness i.type i.employees i.role i.voltage, robust
-margins, dydx(treatment) predict(outcome(#1)) predict(outcome(#2)) post
-
-graph bar (mean) understanding comprehension feasibility intent, ///
-	over(treatment, relabel(1 "Control" 2 "Treatment")) ///
-	legend(label(1 "Understanding") label(2 "Comprehension") label(3 "Feasibility") label(4 "Intent"))
+graph bar (mean) understanding comprehension feasibility intent, over(treatment)
 graph export "$figures\bar.png", replace
 
-graph pie, over(barriers) ///
-	legend(label(1 "Would harm operations") label(2 "Too costly") label(3 "Lack of motivation") label(4 "Don't know how") label(5 "Other"))
+graph pie, over(barriers)
 graph export "$figures\pie.png", replace
-
-label define treatment_labels 0 "Control" 1 "Treatment"
-label values treatment treatment_labels
-
-graph pie, over(barriers) by(treatment) ///
-	legend(label(1 "Would harm operations") label(2 "Too costly") label(3 "Lack of motivation") label(4 "Don't know how") label(5 "Other"))
-graph export "$figures\pie.png", replace
-
-graph bar (mean) feasibility, over(treatment)
-graph bar (mean) understanding, over(treatment)
-graph bar (mean) comprehension, over(treatment)
 
 * save final processed data
 save "$cleandata\survey_clean.dta", replace
